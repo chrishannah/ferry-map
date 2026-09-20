@@ -115,6 +115,37 @@
   --shadow: 0 16px 40px rgba(0, 0, 0, .5);
 }
 
+/* Old-map cartography theme: aged parchment, sepia ink and antique gold. */
+:root[data-theme="parchment"] {
+  --bg: #d9c39a;
+  --panel: #efe3c4;
+  --panel-2: #e4d3aa;
+  --panel-glass: rgba(239, 227, 196, .93);
+  --line: rgba(90, 62, 30, .22);
+  --line-strong: rgba(90, 62, 30, .42);
+  --text: #3f2f18;
+  --muted: #7a6544;
+  --accent: #9a6b16;
+  --accent-soft: rgba(154, 107, 22, .16);
+  --focus: #1f5fb8;
+  --ocean-1: #aec7c1;
+  --ocean-2: #7fa39d;
+  --vignette: rgba(74, 48, 20, .42);
+  --grid: rgba(80, 54, 24, .2);
+  --land: #e3d2a4;
+  --land-hit: #ecdcaf;
+  --land-home: #e6c878;
+  --border: rgba(90, 62, 30, .42);
+  --coast: #6b4a24;
+  --home-coast: #8a5a12;
+  --zone: rgba(74, 52, 24, .44);
+  --sea: rgba(40, 78, 90, .5);
+  --halo: rgba(240, 230, 200, .78);
+  --label: #3a2a14;
+  --label-halo: rgba(239, 228, 198, .92);
+  --shadow: 0 14px 34px rgba(74, 50, 22, .3);
+}
+
 html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
 *, *::before, *::after { box-sizing: border-box; }
 body {
@@ -404,7 +435,7 @@ button { cursor: pointer; }
         <h1>Ferries to and from the UK</h1>
         <p>Ferries between the UK and Europe or Ireland, plus the crossings to its own islands. Every route runs both ways.</p>
       </div>
-      <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch between light and dark map">
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Change map theme">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       </button>
     </div>
@@ -962,12 +993,28 @@ if (reduceMotion) $('swShips').checked = false;
 
 const themeBtn = $('themeBtn');
 const root = document.documentElement;
-try { const saved = localStorage.getItem('ferry-theme'); if (saved) root.dataset.theme = saved; } catch (_) {}
+const THEMES = ['light', 'dark', 'parchment'];
+const THEME_NAMES = { light: 'Light', dark: 'Dark', parchment: 'Old map' };
+const THEME_BAR = { light: '#dfe9ea', dark: '#0b1d28', parchment: '#d9c39a' };
+const metaTheme = document.querySelector('meta[name="theme-color"]');
+function currentTheme() {
+  return root.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+function reflectTheme() {
+  const cur = currentTheme();
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  if (metaTheme) metaTheme.setAttribute('content', THEME_BAR[cur]);
+  themeBtn.setAttribute('aria-label', `Map theme: ${THEME_NAMES[cur]}. Switch to ${THEME_NAMES[next]}.`);
+  themeBtn.title = `Theme: ${THEME_NAMES[cur]}`;
+}
+try { const saved = localStorage.getItem('ferry-theme'); if (saved && THEMES.includes(saved)) root.dataset.theme = saved; } catch (_) {}
+reflectTheme();
+// Follow the OS setting until the visitor picks a theme themselves.
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!root.dataset.theme) reflectTheme(); });
 themeBtn.addEventListener('click', () => {
-  const cur = root.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  const next = cur === 'dark' ? 'light' : 'dark';
-  root.dataset.theme = next;
-  try { localStorage.setItem('ferry-theme', next); } catch (_) {}
+  root.dataset.theme = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
+  reflectTheme();
+  try { localStorage.setItem('ferry-theme', root.dataset.theme); } catch (_) {}
 });
 
 const ARROW = '<svg viewBox="0 0 16 10" aria-hidden="true"><path d="M2 5h12M4.6 1.8L1.6 5l3 3.2M11.4 1.8l3 3.2-3 3.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
