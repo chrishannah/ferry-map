@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ferries to and from the UK: interactive route map</title>
+<meta name="description" content="An interactive map of every passenger ferry route between the UK and Europe or Ireland, plus the crossings to UK islands. Filter by operator, destination and crossing time.">
+<meta name="theme-color" content="#0b1d28">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ferries to and from the UK">
+<meta property="og:description" content="An interactive map of ferry routes between the UK and Europe or Ireland, plus the crossings to UK islands.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  --f-display: "Cinzel", "Trajan Pro", "Palatino Linotype", Georgia, serif;
+  --f-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --bg: #dfe9ea;
+  --panel: #f5f8f4;
+  --panel-2: #e9f0ea;
+  --panel-glass: rgba(246, 249, 244, .93);
+  --line: rgba(28, 68, 78, .16);
+  --line-strong: rgba(28, 68, 78, .32);
+  --text: #14303a;
+  --muted: #526e75;
+  --accent: #9a6407;
+  --accent-soft: rgba(154, 100, 7, .13);
+  --focus: #1b6fe0;
+
+  --ocean-1: #c8dde1;
+  --ocean-2: #9dbfc8;
+  --vignette: rgba(31, 74, 88, .3);
+  --grid: rgba(24, 78, 94, .13);
+  --land: #efe7cd;
+  --land-hit: #f8f0d3;
+  --land-home: #f5e2a2;
+  --border: rgba(70, 90, 80, .32);
+  --coast: #2f6f7c;
+  --home-coast: #b0740c;
+  --zone: rgba(38, 72, 78, .34);
+  --sea: rgba(28, 88, 104, .56);
+  --halo: rgba(255, 255, 255, .72);
+  --label: #123039;
+  --label-halo: rgba(244, 249, 244, .92);
+  --shadow: 0 14px 34px rgba(18, 52, 62, .24);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #061119;
+    --panel: #0b1d28;
+    --panel-2: #10293a;
+    --panel-glass: rgba(9, 26, 36, .92);
+    --line: rgba(140, 205, 215, .14);
+    --line-strong: rgba(140, 205, 215, .3);
+    --text: #e3f0ee;
+    --muted: #88a6ab;
+    --accent: #eab947;
+    --accent-soft: rgba(234, 185, 71, .15);
+    --focus: #6cb2ff;
+    --ocean-1: #0f2f40;
+    --ocean-2: #05131c;
+    --vignette: rgba(2, 8, 12, .72);
+    --grid: rgba(120, 205, 215, .08);
+    --land: #1c3b40;
+    --land-hit: #25494b;
+    --land-home: #2f5048;
+    --border: rgba(130, 210, 200, .2);
+    --coast: #66d6c6;
+    --home-coast: #eab947;
+    --zone: rgba(200, 236, 230, .3);
+    --sea: rgba(130, 200, 214, .44);
+    --halo: rgba(3, 12, 18, .72);
+    --label: #e6f3f1;
+    --label-halo: rgba(4, 16, 22, .92);
+    --shadow: 0 16px 40px rgba(0, 0, 0, .5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #061119;
+  --panel: #0b1d28;
+  --panel-2: #10293a;
+  --panel-glass: rgba(9, 26, 36, .92);
+  --line: rgba(140, 205, 215, .14);
+  --line-strong: rgba(140, 205, 215, .3);
+  --text: #e3f0ee;
+  --muted: #88a6ab;
+  --accent: #eab947;
+  --accent-soft: rgba(234, 185, 71, .15);
+  --focus: #6cb2ff;
+  --ocean-1: #0f2f40;
+  --ocean-2: #05131c;
+  --vignette: rgba(2, 8, 12, .72);
+  --grid: rgba(120, 205, 215, .08);
+  --land: #1c3b40;
+  --land-hit: #25494b;
+  --land-home: #2f5048;
+  --border: rgba(130, 210, 200, .2);
+  --coast: #66d6c6;
+  --home-coast: #eab947;
+  --zone: rgba(200, 236, 230, .3);
+  --sea: rgba(130, 200, 214, .44);
+  --halo: rgba(3, 12, 18, .72);
+  --label: #e6f3f1;
+  --label-halo: rgba(4, 16, 22, .92);
+  --shadow: 0 16px 40px rgba(0, 0, 0, .5);
+}
+
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  height: 100%; margin: 0; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font: 400 14px/1.45 var(--f-ui);
+  -webkit-font-smoothing: antialiased;
+}
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.app { display: grid; grid-template-columns: minmax(330px, 388px) minmax(0, 1fr); height: 100%; }
+
+/* ---------- ledger (left panel) ---------- */
+.ledger {
+  display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--panel); border-right: 1px solid var(--line-strong);
+  position: relative; z-index: 2;
+}
+.ledger-head { padding: 18px 18px 6px; display: flex; gap: 12px; align-items: flex-start; }
+.ledger-head h1 {
+  margin: 0; font: 700 23px/1.1 var(--f-display); letter-spacing: .01em;
+}
+.ledger-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; max-width: 30ch; }
+.theme-btn {
+  margin-left: auto; flex: none; width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid var(--line-strong); background: transparent; display: grid; place-items: center;
+}
+.theme-btn:hover { background: var(--accent-soft); }
+.theme-btn svg { width: 17px; height: 17px; }
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); margin: 12px 18px 4px; border-block: 1px solid var(--line); }
+.kpis div { padding: 10px 0 9px 12px; border-left: 1px solid var(--line); min-width: 0; }
+.kpis div:first-child { border-left: 0; padding-left: 0; }
+.kpis b { display: block; font: 600 19px/1.15 var(--f-display); color: var(--accent); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.kpis span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.25; }
+
+.filters { padding: 8px 18px 4px; }
+.fgroup { margin-top: 10px; }
+.fgroup > h2 { margin: 0 0 6px; font: 600 12.5px/1.2 var(--f-ui); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  --chip: #888;
+  display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px 4px 9px;
+  border: 1px solid var(--line-strong); border-radius: 999px; background: transparent;
+  font: 500 12.5px/1.3 var(--f-ui);
+  transition: background .15s, border-color .15s;
+}
+.chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--chip); flex: none; }
+.chip:hover { border-color: var(--chip); }
+.chip[aria-pressed="true"] { background: color-mix(in srgb, var(--chip) 20%, transparent); border-color: var(--chip); font-weight: 600; }
+
+.chips.limited .chip.extra { display: none; }
+.more { margin-top: 7px; border: 0; background: none; padding: 0; color: var(--accent); font: 600 12.5px var(--f-ui); text-decoration: underline; text-underline-offset: 3px; }
+.range-row { display: flex; align-items: center; gap: 12px; }
+.range-row input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+.range-row output { min-width: 78px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.check { display: flex; align-items: center; gap: 8px; margin-top: 6px; color: var(--muted); font-size: 12.5px; }
+.check input { accent-color: var(--accent); }
+
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 5px 13px; font: 500 12.5px var(--f-ui); }
+.seg button + button { border-left: 1px solid var(--line-strong); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+
+.switches { display: flex; gap: 18px; flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .track { width: 30px; height: 17px; border-radius: 99px; background: var(--line-strong); position: relative; transition: background .15s; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: var(--panel); transition: transform .15s; }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(13px); }
+.switch input:focus-visible + .track { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.reset { display: none; margin-top: 10px; border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; }
+.reset.on { display: inline-block; }
+
+.list-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px 6px; margin-top: 8px; border-top: 1px solid var(--line); }
+.list-head h2 { margin: 0; font: 600 13px var(--f-ui); }
+.list-head label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.list-head select { background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 7px; padding: 3px 6px; font-size: 12.5px; }
+
+.list { list-style: none; margin: 0; padding: 0 8px 22px; flex: none; }
+.row {
+  --c: #888;
+  display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 11px; align-items: center; width: 100%;
+  padding: 8px 10px 8px 6px; border: 0; border-radius: 10px; background: transparent; text-align: left;
+}
+.row:hover { background: var(--panel-2); }
+.row[aria-current="true"] { background: var(--accent-soft); }
+.row .bar { align-self: stretch; border-radius: 4px; background: var(--c); }
+.row .rname { display: block; font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+.row .rname svg { width: 15px; height: 10px; margin: 0 5px; vertical-align: 0; opacity: .6; }
+.row .rops { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .rdur { text-align: right; min-width: 64px; }
+.row .rdur b { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
+.row .rdur em { font-size: 11.5px; color: var(--muted); font-style: italic; }
+.dbar { display: block; height: 3px; border-radius: 2px; background: var(--line); margin-top: 4px; overflow: hidden; }
+.dbar i { display: block; height: 100%; background: var(--c); border-radius: 2px; }
+.empty { padding: 20px 14px; color: var(--muted); }
+.scope { margin: 0; padding: 12px 18px 26px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.5; }
+.empty button { border: 0; background: none; color: var(--accent); font-weight: 600; text-decoration: underline; padding: 0; }
+
+/* ---------- stage (map) ---------- */
+.stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+.map {
+  position: absolute; inset: 0; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  background:
+    radial-gradient(ellipse 90% 80% at 45% 45%, var(--ocean-1), var(--ocean-2));
+}
+.map.dragging { cursor: grabbing; }
+.map::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .09; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .3 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 58%, var(--vignette) 100%); }
+#svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.grat { fill: none; stroke: var(--grid); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.halo { fill: none; stroke: var(--coast); stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.halo.h2 { stroke-width: 14px; opacity: .11; }
+.map.moving .halo.h2 { visibility: hidden; }
+.halo.h1 { stroke-width: 3px; opacity: .95; }
+.halo.home { stroke: var(--home-coast); }
+.land { fill: var(--land); stroke: var(--border); stroke-width: .8px; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: fill .3s; }
+.land.home { fill: var(--land-home); }
+.land.reached { fill: var(--land-hit); }
+
+.zone { font-family: var(--f-display); font-weight: 600; text-anchor: middle; letter-spacing: .34em; fill: var(--zone); pointer-events: none; }
+.zone.sea { font-weight: 500; font-style: italic; letter-spacing: .2em; fill: var(--sea); }
+
+.route { transition: opacity .25s; }
+.r-halo { fill: none; stroke: var(--halo); stroke-width: 5.5px; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.r-main { fill: none; stroke: var(--c, #888); stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: stroke-width .15s; }
+.r-flow {
+  fill: none; stroke: #fff; stroke-width: 1.4px; stroke-linecap: round; stroke-dasharray: .1 11; opacity: .85;
+  vector-effect: non-scaling-stroke; animation: flow 1.5s linear infinite; pointer-events: none;
+}
+@keyframes flow { to { stroke-dashoffset: -11.1; } }
+.r-hit { fill: none; stroke: transparent; stroke-width: 16px; pointer-events: stroke; cursor: pointer; vector-effect: non-scaling-stroke; }
+.route.is-off { opacity: .06; }
+.route.is-off .r-hit { pointer-events: none; }
+.route.is-off .r-flow { display: none; }
+.route.is-muted { opacity: .2; }
+.route.is-muted .r-flow { display: none; }
+.route.is-hov .r-main { stroke-width: 3.8px; }
+.route.is-sel .r-main { stroke-width: 4.2px; }
+.route.is-sel .r-halo { stroke-width: 9px; }
+.route.is-sel .r-flow { stroke-width: 1.8px; animation-duration: .9s; }
+
+.ship { pointer-events: none; transition: opacity .25s; }
+.ship.is-muted { opacity: .25; }
+.ship .glow { fill: var(--c, #fff); opacity: .28; }
+.ship .hull { fill: #fff; stroke: var(--c, #888); stroke-width: 1.6px; stroke-linejoin: round; }
+
+.port { cursor: pointer; transition: opacity .25s; }
+.port .p-shape { fill: var(--panel); stroke: var(--label); stroke-width: 1.8px; }
+.port.home .p-shape { fill: var(--accent); stroke: var(--panel); stroke-width: 1.6px; }
+.port .p-hit { fill: transparent; }
+.port .p-ring { fill: none; stroke: var(--accent); stroke-width: 2px; display: none; }
+.port.is-sel .p-ring, .port.is-end .p-ring { display: block; }
+.port.is-off { opacity: .28; }
+.port:hover .p-shape { stroke: var(--accent); }
+.port:focus-visible { outline: none; }
+.port:focus-visible .p-ring { display: block; stroke: var(--focus); }
+.p-label {
+  font: 600 12.5px var(--f-ui); fill: var(--label); pointer-events: none;
+  paint-order: stroke; stroke: var(--label-halo); stroke-width: 4px; stroke-linejoin: round;
+}
+.port.home .p-label { font-weight: 700; }
+
+/* map furniture */
+.regions { position: absolute; top: 12px; left: 12px; right: 64px; display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; z-index: 3; padding: 2px; }
+.regions::-webkit-scrollbar { display: none; }
+.regions button {
+  flex: none; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--panel-glass); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  font: 600 12.5px var(--f-ui); box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.regions button:hover { border-color: var(--accent); color: var(--accent); }
+.regions button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+.zoom { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; border-radius: 11px; overflow: hidden; border: 1px solid var(--line-strong); background: var(--panel-glass); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 3; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.zoom button { width: 38px; height: 38px; border: 0; background: transparent; font-size: 19px; line-height: 1; display: grid; place-items: center; }
+.zoom button + button { border-top: 1px solid var(--line); }
+.zoom button:hover { background: var(--accent-soft); color: var(--accent); }
+.zoom svg { width: 17px; height: 17px; }
+
+.legend {
+  position: absolute; left: 12px; bottom: 12px; z-index: 3; max-width: 260px;
+  padding: 11px 13px 10px; border-radius: 13px; border: 1px solid var(--line-strong);
+  background: var(--panel-glass); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: var(--shadow);
+}
+.lg-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; border: 0; background: none; padding: 0; font: 600 12.5px var(--f-ui); text-align: left; }
+.lg-head svg { width: 12px; height: 12px; flex: none; transition: transform .15s; }
+.lg-head[aria-expanded="false"] svg { transform: rotate(180deg); }
+.lg-body { margin-top: 7px; }
+.lg-body[hidden] { display: none; }
+.legend ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 14px; }
+.legend li { display: flex; align-items: center; gap: 7px; font-size: 12px; white-space: nowrap; }
+.legend li i { width: 16px; height: 4px; border-radius: 2px; background: var(--c); flex: none; }
+.legend p { margin: 8px 0 0; padding-top: 7px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+.legend .dm { display: inline-block; width: 8px; height: 8px; background: var(--accent); transform: rotate(45deg); margin: 0 5px 0 2px; vertical-align: 0; }
+
+.compass { position: absolute; left: 16px; top: 58px; width: 58px; height: 58px; z-index: 2; pointer-events: none; opacity: .85; }
+.compass svg { width: 100%; height: 100%; overflow: visible; }
+
+.minimap {
+  position: absolute; right: 14px; bottom: 14px; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; z-index: 3;
+  border: 3px solid var(--accent); box-shadow: var(--shadow), 0 0 0 3px var(--panel-glass); cursor: crosshair; touch-action: none;
+  background: var(--ocean-2);
+}
+.minimap svg { width: 100%; height: 100%; display: block; }
+.mm-land { fill: var(--land); stroke: none; }
+.mm-land.home { fill: var(--land-home); }
+.mm-route { fill: none; stroke: var(--c, #888); stroke-width: 1.8px; opacity: .95; vector-effect: non-scaling-stroke; }
+.mm-route.is-off { opacity: .1; }
+.mm-view { fill: rgba(255,255,255,.1); stroke: var(--accent); stroke-width: 1.6px; vector-effect: non-scaling-stroke; }
+
+.detail {
+  position: absolute; top: 58px; right: 62px; width: 318px; max-height: calc(100% - 240px); overflow-y: auto; z-index: 4;
+  padding: 16px 16px 14px; border-radius: 15px; border: 1px solid var(--line-strong);
+  background: var(--panel-glass); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: var(--shadow);
+  animation: pop .22s ease-out;
+}
+.detail[hidden] { display: none; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.detail h2 { margin: 0 26px 6px 0; font: 700 17px/1.25 var(--f-display); }
+.detail .x { position: absolute; top: 9px; right: 9px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: transparent; font-size: 20px; line-height: 1; color: var(--muted); }
+.detail .x:hover { background: var(--accent-soft); color: var(--accent); }
+.detail .ops { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-weight: 600; }
+.detail .ops i { width: 20px; height: 5px; border-radius: 3px; background: var(--c); flex: none; }
+.detail dl { margin: 0; display: grid; gap: 8px; }
+.detail dl div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; }
+.detail dt { color: var(--muted); font-size: 12.5px; }
+.detail dd { margin: 0; font-weight: 500; }
+.detail .note { margin: 12px 0 0; padding-top: 11px; border-top: 1px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.5; }
+.detail .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+.btn { padding: 6px 12px; border-radius: 9px; border: 1px solid var(--line-strong); background: transparent; font: 600 12.5px var(--f-ui); }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.btn.primary:hover { color: var(--panel); filter: brightness(1.08); }
+.detail .plist { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 2px; }
+.detail .plist button { --c: #888; display: grid; grid-template-columns: 4px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 7px 8px 7px 4px; border: 0; border-radius: 9px; background: transparent; text-align: left; }
+.detail .plist button:hover { background: var(--accent-soft); }
+.detail .plist .bar { align-self: stretch; border-radius: 3px; background: var(--c); }
+.detail .plist small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.detail .sub { margin: 0; color: var(--muted); font-size: 12.5px; }
+
+.tip {
+  position: absolute; z-index: 6; pointer-events: none; padding: 7px 10px; border-radius: 9px; max-width: 250px;
+  background: var(--panel); border: 1px solid var(--line-strong); box-shadow: var(--shadow); font-size: 12.5px; line-height: 1.35;
+}
+.tip[hidden] { display: none; }
+.tip b { display: block; font-weight: 700; }
+.tip span { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .r-flow { animation: none; opacity: 0; }
+  .detail { animation: none; }
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 58%) minmax(0, 1fr); }
+  .stage { order: 1; }
+  .ledger { order: 2; border-right: 0; border-top: 1px solid var(--line-strong); }
+  .minimap, .compass { display: none; }
+  .legend { display: none; }
+  .detail { top: auto; left: 10px; right: 10px; bottom: 10px; width: auto; max-height: 48%; padding: 13px 14px 12px; }
+  .detail .opt { display: none; }
+  .detail dl { gap: 5px; }
+  .detail .note { margin-top: 9px; padding-top: 8px; font-size: 12.5px; }
+  .detail .acts { margin-top: 10px; }
+  .regions { right: 60px; }
+  .ledger-head h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<noscript><p style="margin:0;padding:24px;font:16px/1.5 system-ui,sans-serif">This map needs JavaScript to draw the routes. Enable it and reload the page.</p></noscript>
+<div class="app">
+  <aside class="ledger" id="ledger" aria-label="Route filters and list">
+    <div class="ledger-head">
+      <div>
+        <h1>Ferries to and from the UK</h1>
+        <p>Ferries between the UK and Europe or Ireland, plus the crossings to its own islands. Every route runs both ways.</p>
+      </div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch between light and dark map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+
+    <div class="kpis" id="kpis" aria-live="polite">
+      <div><b id="kCount">0</b><span>routes shown</span></div>
+      <div><b id="kMin">–</b><span>shortest crossing</span></div>
+      <div><b id="kMax">–</b><span>longest crossing</span></div>
+      <div><b id="kOps">0</b><span>operators</span></div>
+    </div>
+
+    <div class="filters">
+      <div class="fgroup"><h2>UK port in</h2><div class="chips" id="nationChips"></div></div>
+      <div class="fgroup"><h2>Connects to</h2><div class="chips" id="destChips"></div></div>
+      <div class="fgroup"><h2>Operator</h2><div class="chips limited" id="opChips"></div><button class="more" id="opMore" type="button" aria-expanded="false"></button></div>
+      <div class="fgroup">
+        <h2>Crossing time</h2>
+        <div class="range-row">
+          <input type="range" id="maxh" min="2" max="32" step="1" value="32" aria-label="Longest crossing in hours">
+          <output id="maxhOut" for="maxh">Any length</output>
+        </div>
+        <label class="check"><input type="checkbox" id="unk" checked> Include routes with no confirmed time</label>
+      </div>
+      <div class="fgroup">
+        <h2>Colour routes by</h2>
+        <div class="seg" role="group" aria-label="Colour routes by">
+          <button type="button" id="cbOp" aria-pressed="true">Operator</button>
+          <button type="button" id="cbDest" aria-pressed="false">Destination</button>
+        </div>
+      </div>
+      <div class="fgroup switches">
+        <label class="switch"><input type="checkbox" id="swShips" checked><span class="track"></span>Moving vessels</label>
+        <label class="switch"><input type="checkbox" id="swLabels" checked><span class="track"></span>Port names</label>
+      </div>
+      <button class="reset" id="reset" type="button">Clear all filters</button>
+    </div>
+
+    <div class="list-head">
+      <h2 id="listTitle">Routes</h2>
+      <label>Sort by
+        <select id="sort">
+          <option value="time">Crossing time</option>
+          <option value="from">English port</option>
+          <option value="dest">Destination</option>
+        </select>
+      </label>
+    </div>
+    <ul class="list" id="list" aria-labelledby="listTitle"></ul>
+    <p class="scope">Covers every passenger ferry between the UK and another country, and the main crossings to UK islands. There are no regular passenger ferries between the UK and anywhere outside Europe. Left out: freight-only routes, river hops under about 3 km, most small inter-island links, and Crown Dependency links that skip the UK. Timings for island routes are approximate, and timetables change, so check the operator. Details checked in September 2026. Map data from Natural Earth.</p>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="map" id="map">
+      <svg id="svg" role="application" aria-label="Interactive map of ferry routes to and from the UK. Drag to pan, scroll or pinch to zoom.">
+        <g id="vp">
+          <path class="grat" id="grat"/>
+          <g id="halos"></g>
+          <g id="land"></g>
+          <g id="zones"></g>
+          <g id="routes"></g>
+        </g>
+        <g id="ov">
+          <g id="ships"></g>
+          <g id="ports"></g>
+        </g>
+      </svg>
+      <div class="vignette"></div>
+    </div>
+
+    <div class="regions" id="regions" role="group" aria-label="Jump to a sea area"></div>
+    <div class="zoom">
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zhome" aria-label="Reset view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+      </button>
+    </div>
+
+    <div class="detail" id="detail" hidden></div>
+
+    <div class="legend" id="legend"></div>
+    <div class="compass" aria-hidden="true">
+      <svg viewBox="-40 -40 80 80">
+        <circle r="30" fill="none" stroke="var(--zone)" stroke-width="1"/>
+        <circle r="24" fill="none" stroke="var(--zone)" stroke-width=".6" stroke-dasharray="1 3"/>
+        <path d="M0 -34 L5 -5 L34 0 L5 5 L0 34 L-5 5 L-34 0 L-5 -5 Z" fill="var(--zone)"/>
+        <path d="M0 -34 L5 -5 L0 0 L-5 -5 Z" fill="var(--accent)"/>
+        <text y="-38" text-anchor="middle" font-family="var(--f-display)" font-size="11" font-weight="700" fill="var(--accent)">N</text>
+      </svg>
+    </div>
+    <div class="minimap" id="minimap" aria-hidden="true"><svg id="mmsvg" preserveAspectRatio="xMidYMid slice"></svg></div>
+    <div class="tip" id="tip" hidden></div>
+  </main>
+</div>
+
+<script>
+(() => {
+'use strict';
+const D = __DATA__;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const SVGNS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- vocabulary ---------- */
+const OP_COLORS = {
+  'Brittany Ferries': '#2f6df6', 'DFDS': '#ee7b1a', 'P&O Ferries': '#8b4fe6',
+  'Stena Line': '#10a56a', 'Irish Ferries': '#0aa5b8', 'Steam Packet': '#e0388c',
+  'CalMac': '#d64550', 'Wightlink': '#3aa0e6', 'Red Funnel': '#a0522d', 'NorthLink': '#b8a100',
+};
+const MULTI = '#e9b949', UNKNOWN = '#8093a0', LOCAL = '#7b8fa3';
+const opColor = (o) => OP_COLORS[o] || LOCAL;
+const DEST_COLORS = {
+  'France': '#2f6df6', 'Spain': '#ec4a5a', 'Netherlands': '#f0a020', 'Ireland': '#10a56a',
+  'Northern Ireland': '#8b5cf6', 'Isle of Man': '#e0388c', 'Channel Islands': '#14b8c6',
+  'Within the UK': '#7b8fa3',
+};
+const NATION_ORDER = ['England', 'Scotland', 'Wales', 'Northern Ireland'];
+const DEST_ORDER = Object.keys(DEST_COLORS);
+const ALL_OPS = [...new Set(D.routes.flatMap((r) => r.ops))];
+const OP_ORDER = [...Object.keys(OP_COLORS).filter((o) => ALL_OPS.includes(o)), ...ALL_OPS.filter((o) => !OP_COLORS[o]).sort()];
+const DEST_LAND = {
+  'France': ['france'], 'Spain': ['spain'], 'Netherlands': ['netherlands'], 'Ireland': ['ireland'],
+  'Northern Ireland': [], 'Isle of Man': ['isle-of-man'], 'Channel Islands': ['jersey', 'guernsey'], 'Within the UK': [],
+};
+
+const portBy = Object.fromEntries(D.ports.map((p) => [p.id, p]));
+const routeBy = Object.fromEntries(D.routes.map((r) => [r.id, r]));
+D.routes.forEach((r, i) => {
+  r.a = portBy[r.from]; r.b = portBy[r.to];
+  r.name = `${r.a.name} to ${r.b.name}`;
+  r.cycle = r.min ? 6 + (r.min / 1800) * 30 : 14;
+  r.phase = (i * 0.37) % 1;
+});
+D.ports.forEach((p) => { p.routes = D.routes.filter((r) => r.from === p.id || r.to === p.id); });
+
+const state = {
+  nation: new Set(), dest: new Set(), ops: new Set(), maxH: 32, unknownOk: true,
+  colorBy: 'operator', vessels: !reduceMotion, labels: true, sort: 'time',
+  sel: null, port: null, hover: null,
+};
+let vis = new Set();
+
+const fmt = (m) => {
+  if (m == null) return 'Check timetable';
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60), r = m % 60;
+  return h + 'h' + (r ? ' ' + r + 'm' : '');
+};
+const routeColor = (r) => state.colorBy === 'destination'
+  ? DEST_COLORS[r.dest]
+  : (r.ops.length === 0 ? UNKNOWN : r.ops.length > 1 ? MULTI : opColor(r.ops[0]));
+const opsText = (r) => r.ops.length ? r.ops.join(', ') : 'Operator not confirmed';
+const isVisible = (r) => {
+  if (state.nation.size && !state.nation.has(r.nation)) return false;
+  if (state.dest.size && !state.dest.has(r.dest)) return false;
+  if (state.ops.size && !r.ops.some((o) => state.ops.has(o))) return false;
+  if (r.min == null) return state.unknownOk;
+  if (state.maxH < 32 && r.min > state.maxH * 60) return false;
+  return true;
+};
+
+/* ---------- build the map ---------- */
+const svg = $('svg'), vp = $('vp'), mapEl = $('map'), stage = $('stage');
+$('grat').setAttribute('d', D.graticule);
+
+const gHalos = $('halos'), gLand = $('land'), gZones = $('zones'), gRoutes = $('routes');
+const HOME_KEYS = new Set(['england', 'scotland', 'wales', 'northern-ireland']);
+const homeCls = (k) => (HOME_KEYS.has(k) ? ' home' : '');
+D.land.forEach((l) => {
+  ['h2', 'h1'].forEach((c) => el('path', { d: l.d, class: `halo ${c}${homeCls(l.key)}` }, gHalos));
+});
+D.land.forEach((l) => { const p = el('path', { d: l.d, class: `land${homeCls(l.key)}` }, gLand); p.dataset.key = l.key; });
+const landEls = [...gLand.children];
+
+D.zones.forEach((z) => {
+  const t = el('text', { x: z.x, y: z.y, class: `zone ${z.kind}`, 'font-size': z.size }, gZones);
+  if (z.rot) t.setAttribute('transform', `rotate(${z.rot} ${z.x} ${z.y})`);
+  t.textContent = z.t;
+});
+
+D.routes.forEach((r) => {
+  const g = el('g', { class: 'route' }, gRoutes);
+  r.el = g;
+  el('path', { d: r.d, class: 'r-halo' }, g);
+  r.main = el('path', { d: r.d, class: 'r-main' }, g);
+  el('path', { d: r.d, class: 'r-flow' }, g);
+  r.hit = el('path', { d: r.d, class: 'r-hit' }, g);
+  r.len = r.main.getTotalLength();
+  r.mid = r.main.getPointAtLength(r.len / 2);
+  r.hit.addEventListener('click', () => { if (!moved) selectRoute(r.id); });
+  r.hit.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { setHover(r.id); showTip(e, `<b>${esc(r.name)}</b><span>${esc(opsText(r))}. ${esc(r.dur)}</span>`); } });
+  r.hit.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') moveTip(e); });
+  r.hit.addEventListener('pointerleave', () => { setHover(null); hideTip(); });
+});
+
+const gShips = $('ships'), gPorts = $('ports');
+D.routes.forEach((r) => {
+  const s = el('g', { class: 'ship' }, gShips);
+  const inner = el('g', {}, s);
+  el('circle', { r: 9, class: 'glow' }, inner);
+  el('path', { d: 'M7 0L-5 -4.4L-2.4 0L-5 4.4Z', class: 'hull' }, inner);
+  r.ship = s; r.shipInner = inner;
+});
+
+D.ports.forEach((p) => {
+  const g = el('g', { class: 'port' + (p.home ? ' home' : ''), tabindex: 0, role: 'button', 'aria-label': p.name }, gPorts);
+  el('circle', { r: 11, class: 'p-ring' }, g);
+  if (p.home) el('path', { d: 'M0 -7.5L6.2 0L0 7.5L-6.2 0Z', class: 'p-shape' }, g);
+  else el('circle', { r: 4.4, class: 'p-shape' }, g);
+  el('circle', { r: 14, class: 'p-hit' }, g);
+  const t = el('text', { class: 'p-label' }, g);
+  t.textContent = p.name;
+  p.g = g; p.t = t;
+  g.addEventListener('click', () => { if (!moved) selectPort(p.id); });
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectPort(p.id); } });
+  g.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const n = p.routes.filter((r) => vis.has(r.id)).length;
+    showTip(e, `<b>${esc(p.name)}</b><span>${p.home ? 'UK port in ' + esc(p.country) : 'Port in ' + esc(p.country)}. ${n} route${n === 1 ? '' : 's'} shown</span>`);
+  });
+  g.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') moveTip(e); });
+  g.addEventListener('pointerleave', hideTip);
+});
+
+/* minimap */
+const mmSvg = $('mmsvg');
+{
+  const b = D.regions[0].bbox, px = (b[2] - b[0]) * 0.16, py = (b[3] - b[1]) * 0.16;
+  mmSvg.setAttribute('viewBox', `${b[0] - px} ${b[1] - py} ${b[2] - b[0] + 2 * px} ${b[3] - b[1] + 2 * py}`);
+  D.land.forEach((l) => el('path', { d: l.d, class: `mm-land${homeCls(l.key)}` }, mmSvg));
+  D.routes.forEach((r) => { r.mm = el('path', { d: r.d, class: 'mm-route' }, mmSvg); });
+}
+const mmRect = el('rect', { class: 'mm-view' }, mmSvg);
+
+/* ---------- view: pan and zoom ---------- */
+let W = 0, Hh = 0, kMin = 0.4;
+const kMax = 12;
+let view = { k: 1, tx: 0, ty: 0 };
+let inited = false, anim = 0, moved = false;
+const clampV = (v) => {
+  const k = Math.min(kMax, Math.max(kMin, v.k));
+  const tx = Math.min(0, Math.max(W - D.W * k, v.tx));
+  const ty = Math.min(0, Math.max(Hh - D.H * k, v.ty));
+  return { k, tx, ty };
+};
+const boxView = (b, pad) => {
+  const bw = Math.max(b[2] - b[0], 30), bh = Math.max(b[3] - b[1], 30);
+  const aw = Math.max(60, W - pad.l - pad.r), ah = Math.max(60, Hh - pad.t - pad.b);
+  const k = Math.min(kMax, Math.max(kMin, Math.min(aw / bw, ah / bh)));
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+  return { k, tx: pad.l + aw / 2 - cx * k, ty: pad.t + ah / 2 - cy * k };
+};
+const padding = () => {
+  const small = W < 700;
+  const open = !!(state.sel || state.port);
+  const dh = open && !$('detail').hidden ? $('detail').offsetHeight : 0;
+  return small
+    ? { l: 30, r: 30, t: 56, b: open ? dh + 26 : 40 }
+    : { l: 60, r: open ? 440 : 110, t: 82, b: 190 };
+};
+function flyTo(target, dur = 700) {
+  const t = clampV(target);
+  cancelAnimationFrame(anim);
+  if (reduceMotion || dur === 0) { view = t; render(); return; }
+  const s = { ...view }, t0 = performance.now();
+  const cs = { x: (W / 2 - s.tx) / s.k, y: (Hh / 2 - s.ty) / s.k };
+  const ct = { x: (W / 2 - t.tx) / t.k, y: (Hh / 2 - t.ty) / t.k };
+  const step = (now) => {
+    const u = Math.min(1, (now - t0) / dur);
+    const e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    const k = s.k * Math.pow(t.k / s.k, e);
+    const cx = cs.x + (ct.x - cs.x) * e, cy = cs.y + (ct.y - cs.y) * e;
+    view = clampV({ k, tx: W / 2 - cx * k, ty: Hh / 2 - cy * k });
+    render();
+    if (u < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+function zoomAt(px, py, f) {
+  const k = Math.min(kMax, Math.max(kMin, view.k * f));
+  const r = k / view.k;
+  view = clampV({ k, tx: px - (px - view.tx) * r, ty: py - (py - view.ty) * r });
+  render();
+}
+const bboxOf = (routes) => {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  routes.forEach((r) => {
+    const b = r.main.getBBox();
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+  });
+  return [x0, y0, x1, y1];
+};
+const fitRoutes = (routes, dur) => {
+  const v = boxView(bboxOf(routes), padding());
+  v.k = Math.min(v.k, 6);
+  const b = bboxOf(routes);
+  const p = padding();
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+  v.tx = p.l + (W - p.l - p.r) / 2 - cx * v.k; v.ty = p.t + (Hh - p.t - p.b) / 2 - cy * v.k;
+  flyTo(v, dur);
+};
+
+let movingTimer = 0;
+function render() {
+  mapEl.classList.add('moving');
+  clearTimeout(movingTimer);
+  movingTimer = setTimeout(() => mapEl.classList.remove('moving'), 160);
+  vp.setAttribute('transform', `translate(${view.tx.toFixed(2)} ${view.ty.toFixed(2)}) scale(${view.k.toFixed(4)})`);
+  D.ports.forEach((p) => p.g.setAttribute('transform', `translate(${(p.x * view.k + view.tx).toFixed(1)} ${(p.y * view.k + view.ty).toFixed(1)})`));
+  const ratio = view.k / (fitK || 1);
+  gZones.style.opacity = String(Math.max(0, Math.min(1, 1.55 - ratio * 0.62)));
+  mmRect.setAttribute('x', -view.tx / view.k); mmRect.setAttribute('y', -view.ty / view.k);
+  mmRect.setAttribute('width', W / view.k); mmRect.setAttribute('height', Hh / view.k);
+  updateShips(performance.now());
+  scheduleLabels();
+  syncRegionButtons();
+}
+
+/* labels: greedy placement so names never pile up */
+let labelQueued = false;
+function scheduleLabels() { if (!labelQueued) { labelQueued = true; requestAnimationFrame(() => { labelQueued = false; layoutLabels(); }); } }
+const overlap = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+function layoutLabels() {
+  const ends = new Set(state.sel ? [routeBy[state.sel].from, routeBy[state.sel].to] : []);
+  const items = D.ports.map((p) => ({ p, x: p.x * view.k + view.tx, y: p.y * view.k + view.ty }));
+  const inView = (it) => it.x > -30 && it.x < W + 30 && it.y > -30 && it.y < Hh + 30;
+  const markers = items.filter((it) => it.p.live && inView(it)).map((it) => ({ id: it.p.id, x0: it.x - 9, y0: it.y - 9, x1: it.x + 9, y1: it.y + 9 }));
+  const prio = (it) => (state.port === it.p.id ? -20 : 0) + (ends.has(it.p.id) ? -10 : 0) + it.p.rank * 2 - (it.p.home ? 1 : 0);
+  const placed = [];
+  items.sort((a, b) => prio(a) - prio(b)).forEach((it) => {
+    const p = it.p;
+    if (!state.labels || !p.live || !inView(it)) { p.t.style.display = 'none'; return; }
+    const w = p.name.length * 6.7 + 8, h = 17;
+    for (const s of [p.side, 'r', 'l', 'b', 't']) {
+      let x0, y0;
+      if (s === 'l') { x0 = it.x - 11 - w; y0 = it.y - h / 2; }
+      else if (s === 'r') { x0 = it.x + 11; y0 = it.y - h / 2; }
+      else if (s === 't') { x0 = it.x - w / 2; y0 = it.y - 12 - h; }
+      else { x0 = it.x - w / 2; y0 = it.y + 11; }
+      const r = { x0, y0, x1: x0 + w, y1: y0 + h };
+      if (r.x0 < 4 || r.x1 > W - 4 || r.y0 < 4 || r.y1 > Hh - 4) continue;
+      if (markers.some((m) => m.id !== p.id && overlap(m, r)) || placed.some((o) => overlap(o, r))) continue;
+      placed.push(r);
+      const set = { l: [-11, 4, 'end'], r: [11, 4, 'start'], t: [0, -17, 'middle'], b: [0, 23, 'middle'] }[s];
+      p.t.setAttribute('x', set[0]); p.t.setAttribute('y', set[1]); p.t.setAttribute('text-anchor', set[2]);
+      p.t.style.display = '';
+      return;
+    }
+    p.t.style.display = 'none';
+  });
+}
+
+/* moving vessels (illustrative) */
+let fitK = 1;
+function updateShips(now) {
+  D.routes.forEach((r) => {
+    let show = state.vessels && vis.has(r.id);
+    if (show) {
+      const mx = r.mid.x * view.k + view.tx, my = r.mid.y * view.k + view.ty;
+      const reach = r.len * view.k / 2 + 40;
+      show = mx > -reach && mx < W + reach && my > -reach && my < Hh + reach;
+    }
+    if (!show) { r.ship.style.display = 'none'; return; }
+    r.ship.style.display = '';
+    const ph = reduceMotion ? 0.5 : (((now / 1000) / r.cycle) + r.phase) % 2;
+    const fwd = ph < 1, t = fwd ? ph : 2 - ph;
+    const L = r.len * t;
+    const p = r.main.getPointAtLength(L), q = r.main.getPointAtLength(Math.max(0, Math.min(r.len, L + (fwd ? 2 : -2))));
+    const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+    r.ship.setAttribute('transform', `translate(${(p.x * view.k + view.tx).toFixed(1)} ${(p.y * view.k + view.ty).toFixed(1)}) rotate(${ang.toFixed(1)})`);
+    r.shipInner.style.opacity = String(Math.min(1, t / 0.07, (1 - t) / 0.07));
+  });
+}
+(function tick(now) { requestAnimationFrame(tick); if (state.vessels && !reduceMotion) updateShips(now); })(performance.now());
+
+/* ---------- pointer interaction ---------- */
+const pointers = new Map();
+let dragStart = null, pinch = null;
+mapEl.addEventListener('pointerdown', (e) => {
+  cancelAnimationFrame(anim);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  moved = false;
+  if (pointers.size === 1) dragStart = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, on: false };
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: view.k };
+    dragStart = null; moved = true;
+  }
+});
+mapEl.addEventListener('pointermove', (e) => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const rect = mapEl.getBoundingClientRect();
+  if (pointers.size === 2 && pinch) {
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const mx = (a.x + b.x) / 2 - rect.left, my = (a.y + b.y) / 2 - rect.top;
+    const target = Math.min(kMax, Math.max(kMin, pinch.k * d / pinch.d));
+    zoomAt(mx, my, target / view.k);
+    return;
+  }
+  if (dragStart) {
+    const dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y;
+    if (!dragStart.on && Math.hypot(dx, dy) > 5) {
+      dragStart.on = true; moved = true; mapEl.classList.add('dragging'); hideTip();
+      try { mapEl.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    if (dragStart.on) { view = clampV({ k: view.k, tx: dragStart.tx + dx, ty: dragStart.ty + dy }); render(); }
+  }
+});
+const endPointer = (e) => {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 0) { dragStart = null; mapEl.classList.remove('dragging'); setTimeout(() => { moved = false; }, 0); }
+};
+mapEl.addEventListener('pointerup', endPointer);
+mapEl.addEventListener('pointercancel', endPointer);
+mapEl.addEventListener('click', (e) => {
+  if (moved) return;
+  if (!e.target.closest('.route') && !e.target.closest('.port') && (state.sel || state.port)) clearSelection();
+});
+mapEl.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  cancelAnimationFrame(anim);
+  const rect = mapEl.getBoundingClientRect();
+  const f = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0017));
+  zoomAt(e.clientX - rect.left, e.clientY - rect.top, f);
+}, { passive: false });
+
+$('zin').addEventListener('click', () => { const f = view.k * 1.6; flyTo({ k: f, tx: W / 2 - ((W / 2 - view.tx) / view.k) * f, ty: Hh / 2 - ((Hh / 2 - view.ty) / view.k) * f }, 250); });
+$('zout').addEventListener('click', () => { const f = view.k / 1.6; flyTo({ k: f, tx: W / 2 - ((W / 2 - view.tx) / view.k) * f, ty: Hh / 2 - ((Hh / 2 - view.ty) / view.k) * f }, 250); });
+$('zhome').addEventListener('click', () => { clearSelection(); goRegion('all'); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') clearSelection(); });
+
+/* minimap: click or drag to recentre */
+let mmDown = false;
+const mmMove = (e) => {
+  const pt = mmSvg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const w = pt.matrixTransform(mmSvg.getScreenCTM().inverse());
+  cancelAnimationFrame(anim);
+  view = clampV({ k: view.k, tx: W / 2 - w.x * view.k, ty: Hh / 2 - w.y * view.k });
+  render();
+};
+$('minimap').addEventListener('pointerdown', (e) => { mmDown = true; $('minimap').setPointerCapture(e.pointerId); mmMove(e); });
+$('minimap').addEventListener('pointermove', (e) => { if (mmDown) mmMove(e); });
+$('minimap').addEventListener('pointerup', () => { mmDown = false; });
+
+/* tooltip */
+const tip = $('tip');
+function showTip(e, html) { tip.innerHTML = html; tip.hidden = false; moveTip(e); }
+function moveTip(e) {
+  const r = stage.getBoundingClientRect();
+  let x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  if (x + tw > r.width - 8) x = e.clientX - r.left - tw - 14;
+  if (y + th > r.height - 8) y = e.clientY - r.top - th - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { tip.hidden = true; }
+
+/* ---------- regions ---------- */
+const regionsEl = $('regions');
+D.regions.forEach((rg) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = rg.name; b.dataset.id = rg.id; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => goRegion(rg.id));
+  regionsEl.appendChild(b);
+});
+let activeRegion = 'all';
+function goRegion(id) {
+  if (state.sel || state.port) { state.sel = null; state.port = null; setHash(''); update(); }
+  activeRegion = id;
+  const rg = D.regions.find((r) => r.id === id);
+  const p = { l: 40, r: 80, t: 66, b: 40 };
+  const v = boxView(rg.bbox, p);
+  if (id === 'all') fitK = clampV(v).k;
+  flyTo(v);
+}
+let lastRegionShown = null;
+function syncRegionButtons() {
+  const cx = (W / 2 - view.tx) / view.k, cy = (Hh / 2 - view.ty) / view.k;
+  let best = null;
+  D.regions.forEach((rg) => {
+    const b = rg.bbox;
+    const inside = cx >= b[0] && cx <= b[2] && cy >= b[1] && cy <= b[3];
+    const kFit = boxView(b, { l: 40, r: 80, t: 66, b: 40 }).k;
+    if (inside && Math.abs(Math.log(view.k / kFit)) < 0.35) best = best || rg.id;
+  });
+  [...regionsEl.children].forEach((b) => {
+    const on = b.dataset.id === best;
+    b.setAttribute('aria-pressed', String(on));
+    if (on && best !== lastRegionShown) {
+      const l = b.offsetLeft, r = l + b.offsetWidth;
+      if (l < regionsEl.scrollLeft) regionsEl.scrollLeft = l - 8;
+      else if (r > regionsEl.scrollLeft + regionsEl.clientWidth) regionsEl.scrollLeft = r - regionsEl.clientWidth + 8;
+    }
+  });
+  lastRegionShown = best;
+}
+
+/* ---------- ledger UI ---------- */
+const chipSet = (kind) => (kind === 'dest' ? state.dest : kind === 'nation' ? state.nation : state.ops);
+function buildChips(host, items, kind, colorOf) {
+  items.forEach((v) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.kind = kind; b.dataset.v = v;
+    b.setAttribute('aria-pressed', 'false'); b.style.setProperty('--chip', colorOf(v));
+    b.innerHTML = `<i></i>${esc(v)}`;
+    host.appendChild(b);
+  });
+  host.addEventListener('click', (e) => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    const set = chipSet(kind);
+    set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v);
+    update(); refit();
+  });
+}
+buildChips($('nationChips'), NATION_ORDER, 'nation', () => 'var(--accent)');
+buildChips($('destChips'), DEST_ORDER, 'dest', (v) => DEST_COLORS[v]);
+buildChips($('opChips'), OP_ORDER, 'op', opColor);
+{
+  const LIMIT = 8, chips = [...$('opChips').children], btn = $('opMore');
+  chips.forEach((c, i) => { if (i >= LIMIT) c.classList.add('extra'); });
+  const label = () => { const open = !$('opChips').classList.contains('limited'); btn.textContent = open ? 'Show fewer operators' : `Show all ${chips.length} operators`; btn.setAttribute('aria-expanded', String(open)); };
+  label();
+  btn.addEventListener('click', () => { $('opChips').classList.toggle('limited'); label(); });
+}
+
+$('maxh').addEventListener('input', (e) => { state.maxH = +e.target.value; update(); });
+$('unk').addEventListener('change', (e) => { state.unknownOk = e.target.checked; update(); });
+$('cbOp').addEventListener('click', () => { state.colorBy = 'operator'; update(); });
+$('cbDest').addEventListener('click', () => { state.colorBy = 'destination'; update(); });
+$('swShips').addEventListener('change', (e) => { state.vessels = e.target.checked; update(); });
+$('swLabels').addEventListener('change', (e) => { state.labels = e.target.checked; update(); });
+$('sort').addEventListener('change', (e) => { state.sort = e.target.value; renderList(); });
+$('reset').addEventListener('click', resetFilters);
+function resetFilters() {
+  state.nation.clear(); state.dest.clear(); state.ops.clear(); state.maxH = 32; state.unknownOk = true; update(); refit();
+}
+function refit() {
+  if (state.sel || state.port) return;
+  const vs = D.routes.filter((r) => vis.has(r.id));
+  if (!vs.length) return;
+  if (vs.length === D.routes.length) { goRegion('all'); return; }
+  fitRoutes(vs);
+}
+if (reduceMotion) $('swShips').checked = false;
+
+const themeBtn = $('themeBtn');
+const root = document.documentElement;
+try { const saved = localStorage.getItem('ferry-theme'); if (saved) root.dataset.theme = saved; } catch (_) {}
+themeBtn.addEventListener('click', () => {
+  const cur = root.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next;
+  try { localStorage.setItem('ferry-theme', next); } catch (_) {}
+});
+
+const ARROW = '<svg viewBox="0 0 16 10" aria-hidden="true"><path d="M2 5h12M4.6 1.8L1.6 5l3 3.2M11.4 1.8l3 3.2-3 3.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const sorters = {
+  time: (a, b) => (a.min ?? 1e9) - (b.min ?? 1e9) || a.name.localeCompare(b.name),
+  from: (a, b) => a.a.name.localeCompare(b.a.name) || (a.min ?? 1e9) - (b.min ?? 1e9),
+  dest: (a, b) => DEST_ORDER.indexOf(a.dest) - DEST_ORDER.indexOf(b.dest) || (a.min ?? 1e9) - (b.min ?? 1e9),
+};
+function renderList() {
+  const rs = D.routes.filter((r) => vis.has(r.id)).sort(sorters[state.sort]);
+  $('listTitle').textContent = `Routes (${rs.length} of ${D.routes.length})`;
+  const host = $('list');
+  if (!rs.length) {
+    host.innerHTML = '<li class="empty">No routes match these filters. Try a longer crossing time or <button type="button" data-act="reset">clear the filters</button>.</li>';
+    return;
+  }
+  host.innerHTML = rs.map((r) => {
+    const w = r.min == null ? 0 : Math.max(4, Math.round(r.min / 1800 * 100));
+    return `<li><button type="button" class="row" data-id="${r.id}" style="--c:${routeColor(r)}" ${state.sel === r.id ? 'aria-current="true"' : ''}>
+      <span class="bar"></span>
+      <span><span class="rname">${esc(r.a.name)}${ARROW}${esc(r.b.name)}</span><span class="rops">${esc(opsText(r))}</span></span>
+      <span class="rdur">${r.min == null ? '<em>Check</em>' : `<b>${fmt(r.min)}</b>`}<span class="dbar"><i style="width:${w}%"></i></span></span>
+    </button></li>`;
+  }).join('');
+}
+$('list').addEventListener('click', (e) => {
+  if (e.target.closest('[data-act="reset"]')) { resetFilters(); return; }
+  const b = e.target.closest('.row'); if (b) selectRoute(b.dataset.id);
+});
+$('list').addEventListener('pointerover', (e) => { const b = e.target.closest('.row'); if (b && e.pointerType === 'mouse') setHover(b.dataset.id); });
+$('list').addEventListener('pointerleave', () => setHover(null));
+
+let legendOpen = window.innerHeight >= 1000;
+$('legend').addEventListener('click', (e) => { if (e.target.closest('.lg-head')) { legendOpen = !legendOpen; renderLegend(); } });
+function renderLegend() {
+  const items = state.colorBy === 'operator'
+    ? [...Object.keys(OP_COLORS).filter((o) => D.routes.some((r) => r.ops.length === 1 && r.ops[0] === o)).map((o) => [o, OP_COLORS[o]]),
+       ...(D.routes.some((r) => r.ops.length === 1 && !OP_COLORS[r.ops[0]]) ? [['Other island operators', LOCAL]] : []),
+       ...(D.routes.some((r) => r.ops.length > 1) ? [['Several operators', MULTI]] : []),
+       ...(D.routes.some((r) => r.ops.length === 0) ? [['Operator not confirmed', UNKNOWN]] : [])]
+    : DEST_ORDER.map((d) => [d, DEST_COLORS[d]]);
+  $('legend').innerHTML = `<button type="button" class="lg-head" aria-expanded="${legendOpen}"><span>Routes coloured by ${state.colorBy}</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5l4 3.5 4-3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="lg-body"${legendOpen ? '' : ' hidden'}>
+    <ul>${items.map(([n, c]) => `<li style="--c:${c}"><i></i>${esc(n)}</li>`).join('')}</ul>
+    <p><span class="dm"></span>UK port. Vessels shuttle both ways along each route; they are illustrative, not live ship positions.</p></div>`;
+}
+
+function renderKPIs() {
+  const vs = D.routes.filter((r) => vis.has(r.id));
+  const known = vs.filter((r) => r.min != null).map((r) => r.min);
+  $('kCount').textContent = vs.length;
+  $('kMin').textContent = known.length ? fmt(Math.min(...known)) : '–';
+  $('kMax').textContent = known.length ? fmt(Math.max(...known)) : '–';
+  $('kOps').textContent = new Set(vs.flatMap((r) => r.ops)).size;
+}
+
+function renderDetail() {
+  const box = $('detail');
+  if (state.sel) {
+    const r = routeBy[state.sel];
+    const km = Math.round(r.nm * 1.852);
+    box.innerHTML = `<button class="x" type="button" data-act="close" aria-label="Close details">&times;</button>
+      <h2>${esc(r.name)}</h2>
+      <p class="ops" style="--c:${routeColor(r)}"><i></i>${esc(opsText(r))}</p>
+      <dl>
+        <div><dt>Crossing time</dt><dd>${esc(r.dur)}</dd></div>
+        <div><dt>Sailings</dt><dd>${esc(r.season)}</dd></div>
+        <div><dt>Distance</dt><dd>About ${r.nm} nautical miles (${km} km), measured along the drawn track</dd></div>
+        <div class="opt"><dt>Connects</dt><dd>${esc(r.a.isle || r.a.country)} and ${esc(r.b.isle || r.b.country)}</dd></div>
+      </dl>
+      <p class="note">${esc(r.notes)}</p>
+      <div class="acts">
+        <button class="btn primary" type="button" data-act="fit">Zoom to route</button>
+        <button class="btn" type="button" data-act="port" data-port="${r.a.id}">All routes from ${esc(r.a.name)}</button>
+      </div>`;
+    box.hidden = false;
+  } else if (state.port) {
+    const p = portBy[state.port];
+    const rs = p.routes.filter((r) => vis.has(r.id)).sort(sorters.time);
+    box.innerHTML = `<button class="x" type="button" data-act="close" aria-label="Close details">&times;</button>
+      <h2>${esc(p.name)}</h2>
+      <p class="sub">${p.home ? 'UK port in ' + esc(p.country) : 'Port in ' + esc(p.country)}. ${rs.length} route${rs.length === 1 ? '' : 's'} shown.</p>
+      <ul class="plist">${rs.map((r) => {
+        const other = r.from === p.id ? r.b : r.a;
+        return `<li><button type="button" data-act="route" data-id="${r.id}" style="--c:${routeColor(r)}"><span class="bar"></span><span>${esc(other.name)}</span><small>${r.min == null ? 'Check' : fmt(r.min)}</small></button></li>`;
+      }).join('')}</ul>`;
+    box.hidden = false;
+  } else {
+    box.hidden = true; box.innerHTML = '';
+  }
+}
+$('detail').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'close') clearSelection();
+  else if (act === 'fit') fitRoutes([routeBy[state.sel]]);
+  else if (act === 'port') selectPort(b.dataset.port);
+  else if (act === 'route') selectRoute(b.dataset.id);
+});
+
+/* ---------- selection ---------- */
+function setHash(h) { try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (_) {} }
+function selectRoute(id) {
+  state.sel = id; state.port = null; hideTip();
+  setHash('route=' + id);
+  update();
+  fitRoutes([routeBy[id]]);
+  const row = document.querySelector(`.row[data-id="${id}"]`);
+  if (row) row.scrollIntoView({ block: 'nearest' });
+}
+function selectPort(id) {
+  state.port = id; state.sel = null; hideTip();
+  setHash('port=' + id);
+  update();
+  const rs = portBy[id].routes.filter((r) => vis.has(r.id));
+  if (rs.length) fitRoutes(rs);
+}
+function clearSelection() {
+  if (!state.sel && !state.port) return;
+  state.sel = null; state.port = null;
+  setHash('');
+  update();
+}
+function setHover(id) {
+  if (state.hover === id) return;
+  state.hover = id;
+  D.routes.forEach((r) => r.el.classList.toggle('is-hov', r.id === id));
+}
+
+/* ---------- state -> DOM ---------- */
+function update() {
+  vis = new Set(D.routes.filter(isVisible).map((r) => r.id));
+  if (state.sel && !vis.has(state.sel)) state.sel = null;
+  if (state.port && !portBy[state.port].routes.some((r) => vis.has(r.id))) state.port = null;
+
+  const focus = state.sel ? new Set([state.sel]) : state.port ? new Set(portBy[state.port].routes.map((r) => r.id)) : null;
+  D.routes.forEach((r) => {
+    const cls = ['route'];
+    if (!vis.has(r.id)) cls.push('is-off');
+    else if (focus && !focus.has(r.id)) cls.push('is-muted');
+    if (state.sel === r.id) cls.push('is-sel');
+    if (state.hover === r.id) cls.push('is-hov');
+    r.el.setAttribute('class', cls.join(' '));
+    const c = routeColor(r);
+    r.el.style.setProperty('--c', c);
+    r.ship.style.setProperty('--c', c);
+    r.ship.classList.toggle('is-muted', !!(focus && !focus.has(r.id)));
+    r.mm.style.setProperty('--c', c);
+    r.mm.classList.toggle('is-off', !vis.has(r.id));
+  });
+  if (state.sel) gRoutes.appendChild(routeBy[state.sel].el);
+
+  const ends = state.sel ? [routeBy[state.sel].from, routeBy[state.sel].to] : [];
+  D.ports.forEach((p) => {
+    p.live = p.routes.some((r) => vis.has(r.id));
+    p.g.classList.toggle('is-off', !p.live);
+    p.g.classList.toggle('is-sel', state.port === p.id);
+    p.g.classList.toggle('is-end', ends.includes(p.id));
+  });
+
+  const reached = new Set();
+  vis.forEach((id) => (DEST_LAND[routeBy[id].dest] || []).forEach((k) => reached.add(k)));
+  landEls.forEach((l) => l.classList.toggle('reached', reached.has(l.dataset.key)));
+
+  document.querySelectorAll('.chip').forEach((b) => {
+    b.setAttribute('aria-pressed', String(chipSet(b.dataset.kind).has(b.dataset.v)));
+  });
+  $('maxh').value = state.maxH;
+  $('maxhOut').textContent = state.maxH >= 32 ? 'Any length' : `Up to ${state.maxH}h`;
+  $('unk').checked = state.unknownOk;
+  $('cbOp').setAttribute('aria-pressed', String(state.colorBy === 'operator'));
+  $('cbDest').setAttribute('aria-pressed', String(state.colorBy === 'destination'));
+  $('swShips').checked = state.vessels; $('swLabels').checked = state.labels;
+  $('reset').classList.toggle('on', !!(state.nation.size || state.dest.size || state.ops.size || state.maxH < 32 || !state.unknownOk));
+
+  renderKPIs(); renderList(); renderLegend(); renderDetail();
+  updateShips(performance.now());
+  scheduleLabels();
+}
+
+/* ---------- boot ---------- */
+function measure() {
+  const r = mapEl.getBoundingClientRect();
+  W = r.width; Hh = r.height;
+  kMin = Math.max(W / D.W, Hh / D.H);
+}
+const ro = new ResizeObserver(() => {
+  const prev = { W, Hh };
+  measure();
+  if (!inited) {
+    if (W < 10) return;
+    inited = true;
+    update();
+    const v = boxView(D.regions[0].bbox, { l: 40, r: 80, t: 66, b: 40 });
+    fitK = clampV(v).k;
+    view = clampV(v);
+    render();
+    applyHash();
+    return;
+  }
+  const cx = (prev.W / 2 - view.tx) / view.k, cy = (prev.Hh / 2 - view.ty) / view.k;
+  view = clampV({ k: view.k, tx: W / 2 - cx * view.k, ty: Hh / 2 - cy * view.k });
+  render();
+});
+function applyHash() {
+  const m = location.hash.match(/^#(route|port)=([\w-]+)$/);
+  if (!m) return;
+  if (m[1] === 'route' && routeBy[m[2]]) selectRoute(m[2]);
+  else if (m[1] === 'port' && portBy[m[2]]) selectPort(m[2]);
+}
+window.addEventListener('hashchange', applyHash);
+ro.observe(mapEl);
+})();
+</script>
+</body>
+</html>
