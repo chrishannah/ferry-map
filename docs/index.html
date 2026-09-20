@@ -258,8 +258,10 @@ button { cursor: pointer; }
     radial-gradient(ellipse 90% 80% at 45% 45%, var(--ocean-1), var(--ocean-2));
 }
 .map.dragging { cursor: grabbing; }
+/* A static paper grain. No blend mode: multiply would force the whole map to
+   recomposite on every animation frame, which dominated the frame budget. */
 .map::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .09; mix-blend-mode: multiply;
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .3 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 58%, var(--vignette) 100%); }
@@ -286,6 +288,9 @@ button { cursor: pointer; }
   vector-effect: non-scaling-stroke; animation: flow 1.5s linear infinite; pointer-events: none;
 }
 @keyframes flow { to { stroke-dashoffset: -11.1; } }
+/* Stop the dashed-flow repaint while panning or zooming; it resumes as soon as
+   the map settles, which the eye does not catch but the frame budget does. */
+.map.moving .r-flow { animation-play-state: paused; }
 .r-hit { fill: none; stroke: transparent; stroke-width: 16px; pointer-events: stroke; cursor: pointer; vector-effect: non-scaling-stroke; }
 .route.is-off { opacity: .06; }
 .route.is-off .r-hit { pointer-events: none; }
@@ -630,8 +635,13 @@ D.routes.forEach((r) => {
   r.main = el('path', { d: r.d, class: 'r-main' }, g);
   el('path', { d: r.d, class: 'r-flow' }, g);
   r.hit = el('path', { d: r.d, class: 'r-hit' }, g);
+  // Sample the curve once into a polyline so vessel animation never calls the
+  // (expensive) getPointAtLength per frame; it interpolates this array instead.
   r.len = r.main.getTotalLength();
-  r.mid = r.main.getPointAtLength(r.len / 2);
+  const NS = 48; const sx = new Float64Array(NS + 1), sy = new Float64Array(NS + 1);
+  for (let i = 0; i <= NS; i++) { const q = r.main.getPointAtLength(r.len * i / NS); sx[i] = q.x; sy[i] = q.y; }
+  r.sx = sx; r.sy = sy; r.ns = NS;
+  r.mid = { x: sx[NS >> 1], y: sy[NS >> 1] };
   r.hit.addEventListener('click', () => { if (!moved) selectRoute(r.id); });
   r.hit.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { setHover(r.id); showTip(e, `<b>${esc(r.name)}</b><span>${esc(opsText(r))}. ${esc(r.dur)}</span>`); } });
   r.hit.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') moveTip(e); });
@@ -757,7 +767,9 @@ function render() {
   mmRect.setAttribute('x', -view.tx / view.k); mmRect.setAttribute('y', -view.ty / view.k);
   mmRect.setAttribute('width', W / view.k); mmRect.setAttribute('height', Hh / view.k);
   updateShips(performance.now());
-  scheduleLabels();
+  // Labels move with their ports for free; only their placement needs relaying,
+  // which is O(n^2). Skip it during an active drag/pinch and redo it once on release.
+  if (!(dragStart && dragStart.on) && !pinch) scheduleLabels();
   syncRegionButtons();
 }
 
@@ -809,10 +821,11 @@ function updateShips(now) {
     r.ship.style.display = '';
     const ph = reduceMotion ? 0.5 : (((now / 1000) / r.cycle) + r.phase) % 2;
     const fwd = ph < 1, t = fwd ? ph : 2 - ph;
-    const L = r.len * t;
-    const p = r.main.getPointAtLength(L), q = r.main.getPointAtLength(Math.max(0, Math.min(r.len, L + (fwd ? 2 : -2))));
-    const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
-    r.ship.setAttribute('transform', `translate(${(p.x * view.k + view.tx).toFixed(1)} ${(p.y * view.k + view.ty).toFixed(1)}) rotate(${ang.toFixed(1)})`);
+    const f = t * r.ns; let i0 = f | 0; if (i0 >= r.ns) i0 = r.ns - 1;
+    const fr = f - i0, ax = r.sx[i0], ay = r.sy[i0], bx = r.sx[i0 + 1], by = r.sy[i0 + 1];
+    const px = ax + (bx - ax) * fr, py = ay + (by - ay) * fr;
+    let ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI; if (!fwd) ang += 180;
+    r.ship.setAttribute('transform', `translate(${(px * view.k + view.tx).toFixed(1)} ${(py * view.k + view.ty).toFixed(1)}) rotate(${ang.toFixed(1)})`);
     r.shipInner.style.opacity = String(Math.min(1, t / 0.07, (1 - t) / 0.07));
   });
 }
@@ -856,7 +869,7 @@ mapEl.addEventListener('pointermove', (e) => {
 const endPointer = (e) => {
   pointers.delete(e.pointerId);
   if (pointers.size < 2) pinch = null;
-  if (pointers.size === 0) { dragStart = null; mapEl.classList.remove('dragging'); setTimeout(() => { moved = false; }, 0); }
+  if (pointers.size === 0) { dragStart = null; mapEl.classList.remove('dragging'); scheduleLabels(); setTimeout(() => { moved = false; }, 0); }
 };
 mapEl.addEventListener('pointerup', endPointer);
 mapEl.addEventListener('pointercancel', endPointer);
@@ -1229,5 +1242,7 @@ window.addEventListener('hashchange', applyHash);
 ro.observe(mapEl);
 })();
 </script>
+<!-- Tinylytics: privacy-friendly visitor stats -->
+<script src="https://tinylytics.app/embed/_WLqQ_gWymW1kmjy_GQt.js" defer></script>
 </body>
 </html>
